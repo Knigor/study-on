@@ -1,3 +1,16 @@
 body {
-    background-color: skyblue;
+    background-color: white;
+}
+
+a{
+    text-decoration: none;
+    color: blue;
+    font-weight: bold;
+    text-underline-offset: 4px;
+}
+
+
+a:hover{
+    text-decoration: underline;
+    color: brown;
 }

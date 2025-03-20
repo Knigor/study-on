@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ course.name }}{% endblock %}
+
+{% block body %}
+    <h1>{{ course.name }}</h1>
+
+    <table class="table">
+        <tbody>
+        <tr>
+
+        </tr>
+        <tr>
+            <td>{{ course.description }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h3>Уроки</h3>
+    <ul>
+        {% for lesson in lessons %}
+            <li>
+                <a href="{{ path('app_lesson_show', {'id': lesson.id}) }}">{{ lesson.nameLesson }}</a>
+            </li>
+        {% else %}
+            <li>No lessons available</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ path('app_course_index') }}">Вернуться к курсам</a>
+    <br>
+    <a href="{{ path('app_course_edit', {'id': course.id}) }}">Редактировать курсы</a>
+    <br>
+    <a href="{{ path('app_lesson_new', {'course_id': course.id}) }}">Добавить урок</a>
+{% endblock %}
