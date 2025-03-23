@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Course;
 use App\Entity\Lesson;
 use App\Form\LessonType;
 use App\Repository\LessonRepository;
@@ -14,18 +15,20 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/lessons')]
 final class LessonController extends AbstractController
 {
-    #[Route(name: 'app_lesson_index', methods: ['GET'])]
-    public function index(LessonRepository $lessonRepository): Response
-    {
-        return $this->render('lesson/index.html.twig', [
-            'lessons' => $lessonRepository->findAll(),
-        ]);
-    }
 
-    #[Route('/new', name: 'app_lesson_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+//    #[Route(name: 'app_lesson_index', methods: ['GET'])]
+//    public function index(LessonRepository $lessonRepository): Response
+//    {
+//        return $this->render('lesson/index.html.twig', [
+//            'lessons' => $lessonRepository->findAll(),
+//        ]);
+//    }
+    #[Route('/new/{course}', name: 'app_lesson_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager, Course $course): Response
     {
         $lesson = new Lesson();
+        $lesson->setCourse($course);
+
         $form = $this->createForm(LessonType::class, $lesson);
         $form->handleRequest($request);
 
@@ -33,11 +36,12 @@ final class LessonController extends AbstractController
             $entityManager->persist($lesson);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_lesson_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_course_show', ['id' => $course->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('course/new.html.twig', [
+        return $this->render('lesson/new.html.twig', [
             'lesson' => $lesson,
+            'course' => $course,
             'form' => $form,
         ]);
     }
@@ -57,10 +61,11 @@ final class LessonController extends AbstractController
         $form = $this->createForm(LessonType::class, $lesson);
         $form->handleRequest($request);
 
+
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_lesson_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_lesson_show', ['id' => $lesson->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('lesson/edit.html.twig', [
@@ -70,13 +75,20 @@ final class LessonController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_lesson_delete', methods: ['POST'])]
-    public function delete(Request $request, Lesson $lesson, EntityManagerInterface $entityManager): Response
-    {
+    public function delete(
+        Request $request,
+        Lesson $lesson,
+        EntityManagerInterface $entityManager
+    ): Response {
         if ($this->isCsrfTokenValid('delete'.$lesson->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($lesson);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_lesson_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute(
+            'app_course_show',
+            ['id' => $lesson->getCourse()->getId()],
+            Response::HTTP_SEE_OTHER
+        );
     }
 }

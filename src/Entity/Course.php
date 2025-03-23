@@ -6,8 +6,11 @@ use App\Repository\CourseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: CourseRepository::class)]
+#[UniqueEntity('characterCode')]
 class Course
 {
     #[ORM\Id]
@@ -16,18 +19,36 @@ class Course
     private ?int $id = null;
 
     #[ORM\Column(length: 255, unique: true)]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: "Код курса должен содержать минимум 3 символа.",
+        maxMessage: "Код курса должен содержать максимум 255 символов."
+    )]
     private ?string $characterCode = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: "Название должно содержать минимум 3 символа.",
+        maxMessage: "Название должно содержать максимум 255 символов."
+    )]
     private ?string $name = null;
 
     #[ORM\Column(length: 1000, nullable: true)]
+    #[Assert\Length(
+        min: 3,
+        max: 1000,
+        minMessage: "Описание должно содержать минимум 3 символа.",
+        maxMessage: "Описание должно содержать максимум 255 символов."
+    )]
     private ?string $description = null;
 
     /**
      * @var Collection<int, Lesson>
      */
-    #[ORM\OneToMany(targetEntity: Lesson::class, mappedBy: 'course')]
+    #[ORM\OneToMany(targetEntity: Lesson::class, mappedBy: 'course', cascade: ['remove'])]
     private Collection $lessons;
 
     public function __construct()

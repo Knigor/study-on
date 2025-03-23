@@ -1,4 +1,23 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+
+<div class="form-group">
+    {{ form_label(form.characterCode) }}
+    {{ form_widget(form.characterCode) }}
+    {{ form_errors(form.characterCode) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.name) }}
+    {{ form_widget(form.name) }}
+    {{ form_errors(form.name) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.description) }}
+    {{ form_widget(form.description) }}
+    {{ form_errors(form.description) }}
+</div>
+
+<button class="btn btn-primary">{{ button_label|default('Сохранить') }}</button>
+
 {{ form_end(form) }}

@@ -11,7 +11,10 @@
     <br>
     <a href="{{ path('app_lesson_edit', {'id': lesson.id}) }}">Редактировать урок</a>
     <br>
-    <a href="{{ path('app_lesson_delete', {'id': lesson.id}) }}" onclick="return confirm('Are you sure?')">Удалить урок</a>
+    <form action="{{ path('app_lesson_delete', {'id': lesson.id}) }}" method="post" onsubmit="return confirm('Вы точно хотите удалить? ');">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ lesson.id) }}">
+        <button type="submit" style="cursor: pointer;  color: red;">Удалить урок</button>
+    </form>
     <br>
     <a href="{{ path('app_course_show', {'id': course.id}) }}">Вернуться к курсу</a>
 {% endblock %}

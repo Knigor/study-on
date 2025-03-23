@@ -4,7 +4,6 @@
 
 {% block body %}
     <h1>{{ course.name }}</h1>
-
     <table class="table">
         <tbody>
         <tr>
@@ -31,5 +30,5 @@
     <br>
     <a href="{{ path('app_course_edit', {'id': course.id}) }}">Редактировать курсы</a>
     <br>
-    <a href="{{ path('app_lesson_new', {'course_id': course.id}) }}">Добавить урок</a>
+    <a href="{{ path('app_lesson_new', {'course': course.id}) }}">Добавить урок</a>
 {% endblock %}

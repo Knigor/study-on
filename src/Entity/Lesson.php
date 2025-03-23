@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\LessonRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: LessonRepository::class)]
 class Lesson
@@ -19,12 +20,28 @@ class Lesson
     private ?Course $course = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Название урока не может быть пустым.")]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: "Название урока должно содержать минимум 3 символа.",
+        maxMessage: "Название урока должно содержать максимум 255 символов."
+    )]
     private ?string $nameLesson = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: "Описание не может быть пустым.")]
+    #[Assert\Length(
+        min: 3,
+        max: 1000,
+        minMessage: "Описание должно содержать минимум 3 символа.",
+        maxMessage: "Описание должно содержать максимум 255 символов."
+    )]
     private ?string $lessonContent = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Positive(message: "Цена урока должна быть положительным числом.")]
+    #[Assert\Range(notInRangeMessage: 'Цена курса не должна превышать {{ max }} рублей.', max: 10000,)]
     private ?int $orderNumber = null;
 
     public function getId(): ?int
