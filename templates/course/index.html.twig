@@ -3,36 +3,41 @@
 {% block title %}Courses{% endblock %}
 
 {% block body %}
-    <h1>Курсы</h1>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Курсы</h1>
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for course in courses %}
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
             <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for course in courses %}
+                <tr>
+                    <td><a href="{{ path('app_course_show', {'id': course.id}) }}" class="text-decoration-none text-primary">{{ course.name }}</a></td>
+                    <td>{{ course.description }}</td>
 
-                <td><a href="{{ path('app_course_show', {'id': course.id}) }}">{{ course.name }}</a></td>
-                <td>{{ course.description }}</td>
-                <td>
-                    <form action="{{ path('app_course_delete', {'id': course.id}) }}" method="post" onsubmit="return confirm('Вы уверены?');">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ course.id) }}">
-                        <button type="submit" style="border: none; background: none; color: red; cursor: pointer;">Удалить</button>
-                    </form>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="4">No courses found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    <hr>
-    <a href="{{ path('app_course_new') }}">Создать новый курс</a>
+                    <td>
+                        <form action="{{ path('app_course_delete', {'id': course.id}) }}" method="post" onsubmit="return confirm('Вы уверены?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ course.id) }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="3" class="text-center">No courses found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <hr>
+
+        <div class="text-center">
+            <a href="{{ path('app_course_new') }}" class="btn btn-success">Создать новый курс</a>
+        </div>
+    </div>
 {% endblock %}

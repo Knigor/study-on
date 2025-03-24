@@ -3,18 +3,23 @@
 {% block title %}{{ lesson.nameLesson }}{% endblock %}
 
 {% block body %}
-    <h1>{{ lesson.nameLesson }}</h1>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">{{ lesson.nameLesson }}</h1>
 
-    <p><strong>Название курса:</strong> <a href="{{ path('app_course_show', {'id': course.id}) }}">{{ course.name }}</a></p>
-    <p><strong>Описание:</strong></p>
-    <div>{{ lesson.lessonContent }}</div>
-    <br>
-    <a href="{{ path('app_lesson_edit', {'id': lesson.id}) }}">Редактировать урок</a>
-    <br>
-    <form action="{{ path('app_lesson_delete', {'id': lesson.id}) }}" method="post" onsubmit="return confirm('Вы точно хотите удалить? ');">
-        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ lesson.id) }}">
-        <button type="submit" style="cursor: pointer;  color: red;">Удалить урок</button>
-    </form>
-    <br>
-    <a href="{{ path('app_course_show', {'id': course.id}) }}">Вернуться к курсу</a>
+        <p><strong>Название курса:</strong> <a href="{{ path('app_course_show', {'id': course.id}) }}" class="text-decoration-none">{{ course.name }}</a></p>
+        <p><strong>Описание:</strong></p>
+        <div class="mb-4">{{ lesson.lessonContent }}</div>
+
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ path('app_lesson_edit', {'id': lesson.id}) }}" class="btn btn-warning">Редактировать урок</a>
+            <form action="{{ path('app_lesson_delete', {'id': lesson.id}) }}" method="post" onsubmit="return confirm('Вы точно хотите удалить?');" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ lesson.id) }}">
+                <button type="submit" class="btn btn-danger">Удалить урок</button>
+            </form>
+        </div>
+
+        <div class="mt-3 text-center">
+            <a href="{{ path('app_course_show', {'id': course.id}) }}" class="btn btn-secondary">Вернуться к курсу</a>
+        </div>
+    </div>
 {% endblock %}

@@ -70,6 +70,7 @@ final class LessonController extends AbstractController
 
         return $this->render('lesson/edit.html.twig', [
             'lesson' => $lesson,
+            'course' => $lesson->getCourse(),
             'form' => $form,
         ]);
     }

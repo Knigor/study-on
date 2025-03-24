@@ -3,32 +3,33 @@
 {% block title %}{{ course.name }}{% endblock %}
 
 {% block body %}
-    <h1>{{ course.name }}</h1>
-    <table class="table">
-        <tbody>
-        <tr>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">{{ course.name }}</h1>
 
-        </tr>
-        <tr>
-            <td>{{ course.description }}</td>
-        </tr>
-        </tbody>
-    </table>
+        <table class="table table-striped table-bordered">
+            <tbody>
+            <tr>
+                <th>Описание</th>
+                <td>{{ course.description }}</td>
+            </tr>
+            </tbody>
+        </table>
 
-    <h3>Уроки</h3>
-    <ul>
-        {% for lesson in lessons %}
-            <li>
-                <a href="{{ path('app_lesson_show', {'id': lesson.id}) }}">{{ lesson.nameLesson }}</a>
-            </li>
-        {% else %}
-            <li>No lessons available</li>
-        {% endfor %}
-    </ul>
+        <h3>Уроки</h3>
+        <ul class="list-group mb-4">
+            {% for lesson in lessons %}
+                <li class="list-group-item">
+                    <a href="{{ path('app_lesson_show', {'id': lesson.id}) }}" class="text-decoration-none">{{ lesson.nameLesson }}</a>
+                </li>
+            {% else %}
+                <li class="list-group-item">No lessons available</li>
+            {% endfor %}
+        </ul>
 
-    <a href="{{ path('app_course_index') }}">Вернуться к курсам</a>
-    <br>
-    <a href="{{ path('app_course_edit', {'id': course.id}) }}">Редактировать курсы</a>
-    <br>
-    <a href="{{ path('app_lesson_new', {'course': course.id}) }}">Добавить урок</a>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ path('app_course_index') }}" class="btn btn-secondary">Вернуться к курсам</a>
+            <a href="{{ path('app_course_edit', {'id': course.id}) }}" class="btn btn-warning">Редактировать курс</a>
+            <a href="{{ path('app_lesson_new', {'course': course.id}) }}" class="btn btn-success">Добавить урок</a>
+        </div>
+    </div>
 {% endblock %}
