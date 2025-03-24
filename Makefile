@@ -21,12 +21,17 @@ migrate:
 fixtload:
 	@${CONSOLE} doctrine:fixtures:load
 
-
+# запуск фронтенда
 encore_dev:
 	@${COMPOSE} run node yarn encore dev
 
 encore_prod:
 	@${COMPOSE} run node yarn encore production
+
+# юнит тесты
+
+phpunit:
+	@${PHP} bin/phpunit
 
 # В файл local.mk можно добавлять дополнительные make-команды,
 # которые требуются лично вам, но не нужны на проекте в целом

@@ -19,7 +19,7 @@
         <ul class="list-group mb-4">
             {% for lesson in lessons %}
                 <li class="list-group-item">
-                    <a href="{{ path('app_lesson_show', {'id': lesson.id}) }}" class="text-decoration-none">{{ lesson.nameLesson }}</a>
+                    <a href="{{ path('app_lesson_show', {'id': lesson.id}) }}" class="text-decoration-none lesson-item">{{ lesson.nameLesson }}</a>
                 </li>
             {% else %}
                 <li class="list-group-item">No lessons available</li>
