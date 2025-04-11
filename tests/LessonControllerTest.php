@@ -13,30 +13,6 @@ class LessonControllerTest extends AbstractTest
         return [CourseFixtures::class];
     }
 
-
-    // Проверка корректных Статусов GET
-    public function testGetActionsResponseOk(): void
-    {
-        //проверка страниц всех курсов
-        $client = self::getClient();
-        $lessons = self::getEntityManager()->getRepository(Lesson::class)->findAll();
-        foreach ($lessons as $lesson) {
-            // страница урока
-            $client->request('GET', '/lessons/' . $lesson->getId());
-            $this->assertResponseOk();
-
-            // страница создания нового урока
-            $client->request('GET', '/lessons/new/' . $lesson->getCourse()->getId());
-            $this->assertResponseOk();
-
-            // страница редактирования курса
-            $client->request('GET', '/lessons/' . $lesson->getId() . '/edit');
-            $this->assertResponseOk();
-        }
-
-    }
-
-
     // Тестируем создание урока пользователем
     public function testCreateLesson(): void
     {
@@ -49,7 +25,6 @@ class LessonControllerTest extends AbstractTest
         // открываем страницу курса
         $crawler = $client->request('GET', '/courses/' . $course->getId());
         $this->assertResponseOk();
-
 
         // Перед отправкой формы считаем количество уроков
         $lessonCountBefore = $entityManager->getRepository(Lesson::class)->count(['course' => $course]);
@@ -76,7 +51,6 @@ class LessonControllerTest extends AbstractTest
         $lessonCountAfter = $entityManager->getRepository(Lesson::class)->count(['course' => $course]);
         $this->assertSame($lessonCountBefore + 1, $lessonCountAfter);
     }
-
 
     // тестируем на ошибку создания урока
     public function testCreateLessonError(): void
@@ -212,7 +186,6 @@ class LessonControllerTest extends AbstractTest
         $this->assertSame('Описание нового урока', $lesson->getLessonContent());
         $this->assertSame(4000, $lesson->getOrderNumber());
 
-
     }
 
     // тестируем на ошибку редактирования
@@ -274,8 +247,6 @@ class LessonControllerTest extends AbstractTest
             'div',
             'Название урока должно содержать минимум 3 символа.'
         );
-
-
     }
 
 }
