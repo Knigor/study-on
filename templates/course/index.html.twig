@@ -17,13 +17,13 @@
             <tbody>
             {% for course in courses %}
                 <tr>
-                    <td><a href="{{ path('app_course_show', {'id': course.id}) }}" class="text-decoration-none text-primary course-item">{{ course.name }}</a></td>
-                    <td>{{ course.description }}</td>
+                    <td><a href="{{ path('app_course_show', {'id': course.id}) }}" class="text-decoration-none text-primary course-name course-item">{{ course.name }}</a></td>
+                    <td class="course-description">{{ course.description }}</td>
 
                     <td>
                         <form action="{{ path('app_course_delete', {'id': course.id}) }}" method="post" onsubmit="return confirm('Вы уверены?');">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ course.id) }}">
-                            <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                            <button type="submit" class="btn btn-danger btn-sm delete-button">Удалить</button>
                         </form>
                     </td>
                 </tr>
