@@ -29,5 +29,13 @@ services:
         arguments:
             $billingUrl: '%env(BILLING_URL)%'
 
+    # ниже будет ловится кастомный 403 обработчик
+
+    App\Security\CustomAccessDeniedHandler:
+        arguments:
+            $twig: '@twig'
+
+
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

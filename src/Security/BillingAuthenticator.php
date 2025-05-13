@@ -75,7 +75,17 @@ class BillingAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        return new RedirectResponse($this->urlGenerator->generate('app_login'));
+        return new RedirectResponse($this->urlGenerator->generate('app_course_index'));
+    }
+
+    public function createPassportFromUser(UserInterface $user): Passport
+    {
+        return new SelfValidatingPassport(
+            new UserBadge($user->getUserIdentifier(), fn() => $user),
+            [
+                new RememberMeBadge(),
+            ]
+        );
     }
 
     protected function getLoginUrl(Request $request): string

@@ -3,6 +3,7 @@
 namespace App\Security;
 
 use App\Exception\BillingUnavailableException;
+use App\Exception\JwtManagerException;
 use App\Service\BillingClient;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;

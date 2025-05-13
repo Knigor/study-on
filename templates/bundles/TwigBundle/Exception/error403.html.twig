@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{ status }}/Stydy-On
+{% endblock %}
+
+{% block body %}
+
+    <div style="display: flex; flex-direction: column; align-items: center; margin-top: 3rem; gap: 30px;">
+        <h1>Ошибка <span class="text-danger">{{ status }}</span></h1>
+        <div style="width: 500px; font-size: 20px; text-align:center;">
+            Кажется что-то пошло не так, доступ к запрашиваемой странице запрещен или у вас нет прав на просмотр контента.
+        </div>
+        <a href="{{ path('app_course_index') }}" class="btn btn-outline-success">Вернуться на главную страницу</a>
+    </div>
+
+{% endblock %}

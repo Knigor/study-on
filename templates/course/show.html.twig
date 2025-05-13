@@ -28,8 +28,10 @@
 
         <div class="d-flex justify-content-center gap-3">
             <a href="{{ path('app_course_index') }}" class="btn btn-secondary">Вернуться к курсам</a>
+            {% if is_granted('ROLE_ADMIN') %}
             <a href="{{ path('app_course_edit', {'id': course.id}) }}" class="btn btn-warning">Редактировать курс</a>
             <a href="{{ path('app_lesson_new', {'course': course.id}) }}" class="btn btn-success">Добавить урок</a>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
