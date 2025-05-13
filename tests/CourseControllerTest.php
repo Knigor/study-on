@@ -26,9 +26,33 @@ class CourseControllerTest extends AbstractTest
         $this->assertResponseOk();
         $this->assertCount(count($courses), $client->getCrawler()->filter('.course-item'));
 
-        // Проверка страницы создания курса
+        // Проверка что у неавторизованного пользователя нету доступа к созданию курса
         $client->request('GET', '/courses/new');
+        $client->followRedirect();
         $this->assertResponseOk();
+
+        // проверка что у пользователя нету кнопок на создание и удаление
+        self::assertAnySelectorTextNotContains('button', 'Создать новый курс');
+        self::assertAnySelectorTextNotContains('button', 'Удалить');
+
+
+    }
+
+    // авторизация
+    public function testSuccessAuthorization(): void
+    {
+        // заходим на страницу входа
+        $client = self::getClient();
+        $crawler = $client->request('GET', '/login');
+        self::assertResponseIsSuccessful();
+
+        // Заполняем и отправляем форму
+        $form = $crawler->selectButton('Войти')->form([
+            'email' => 'admin@mail.com',
+            'password' => '123456',
+        ]);
+        $client->submit($form);
+        self::assertResponseRedirects();
     }
 
     // Проверка на 404
