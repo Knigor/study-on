@@ -2,6 +2,7 @@
 
 namespace App\Tests;
 
+use App\Tests\Mock\BillingClientMock;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -10,6 +11,7 @@ use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Loader;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\BillingClient;
 
 abstract class AbstractTest extends WebTestCase
 {
@@ -95,6 +97,21 @@ abstract class AbstractTest extends WebTestCase
         $executor = new ORMExecutor($em, $purger); // Выполнение фикстур
         $executor->execute($loader->getFixtures());
     }
+
+    protected function replaceServiceBillingClient($ex = false): ?AbstractBrowser
+    {
+        $client = static::getClient();
+        $client->disableReboot();
+
+        static::getContainer()->set(
+            BillingClient::class,
+            new BillingClientMock('', ex: $ex),
+        );
+
+        return $client;
+    }
+
+
 
     public function assertResponseOk(?Response $response = null, ?string $message = null, string $type = 'text/html')
     {

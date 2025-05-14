@@ -28,36 +28,32 @@ class BillingClientMock extends BillingClient
         ],
     ];
 
+    public function __construct(
+        private string $billingingUrl,
+        private bool $ex = false,
+    ) {
+    }
+
     public function setThrowException(bool $flag): void
     {
         $this->shouldThrowException = $flag;
     }
 
-    public function auth(array $credentials): array
+    public function auth(array $data, bool $ex = false): array
     {
-        if ($this->shouldThrowException) {
+
+        dump('AUTH called', $credentials);
+        die(); // остановит выполнение теста
+
+        if ($this->ex) {
             throw new BillingUnavailableException();
         }
 
-        foreach ($this->dataUsers as $user) {
-            if (
-                $credentials['email'] === $user['email'] &&
-                $credentials['password'] === $user['password']
-            ) {
-                return [
-                    'access_token' => $user['access_token'],
-                    'refresh_token' => $user['refresh_token'],
-                    'user' => [
-                        'email' => $user['email'],
-                        'roles' => $user['roles'],
-                        'balance' => $user['balance'],
-                    ]
-                ];
-            }
+        if ($data['email'] === 'admin@mail.com' && $data['password'] === '123456') {
+            return $this->dataUsers[0];
         }
 
-        return [
-            'message' => 'Invalid credentials',
-        ];
+
+        return ['code' => 401, 'message' => 'Invalid credentials.'];
     }
 }
