@@ -7,7 +7,6 @@ use App\Service\BillingClient;
 
 class BillingClientMock extends BillingClient
 {
-    private bool $shouldThrowException = false;
 
     private array $dataUsers = [
         [
@@ -28,32 +27,57 @@ class BillingClientMock extends BillingClient
         ],
     ];
 
+
     public function __construct(
-        private string $billingingUrl,
-        private bool $ex = false,
+        private readonly bool $ex = false,
     ) {
+
     }
 
-    public function setThrowException(bool $flag): void
+    public function register(array $data, $ex = false): array
     {
-        $this->shouldThrowException = $flag;
+        if ($this->ex) {
+            throw new BillingUnavailableException();
+        }
+        
+        
+        if ($data['email'] === 'admin@mail.ru') {
+            return [
+                "error" => "Email already taken",
+                "message" => "User with this email already exists"
+            ];
+        }
+
+        return [
+            'access_token' => 'someAccessToken',
+            'refresh_token' => 'someRefreshToken',
+            'user' => [
+                'email' => 'new@example.com',
+                'roles' => ['ROLE_USER'],
+            ],
+        ];
     }
 
-    public function auth(array $data, bool $ex = false): array
+    public function auth(array $data, $ex = false): array
     {
-
-        dump('AUTH called', $credentials);
-        die(); // остановит выполнение теста
-
         if ($this->ex) {
             throw new BillingUnavailableException();
         }
 
-        if ($data['email'] === 'admin@mail.com' && $data['password'] === '123456') {
-            return $this->dataUsers[0];
+        if ($data['email'] === 'admin@mail.ru' && $data['password'] === '123456') {
+            return [
+                'access_token' => 'someAccessToken',
+                'refresh_token' => 'someRefreshToken',
+                'user' => [
+                    'email' => 'admin@mail.ru',
+                    "roles" => [
+                        "ROLE_ADMIN",
+                        "ROLE_USER"
+                    ]
+                ],
+            ];
         }
 
-
-        return ['code' => 401, 'message' => 'Invalid credentials.'];
+        return ['code' => 403, 'message' => 'Invalid credentials.'];
     }
 }

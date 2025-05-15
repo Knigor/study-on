@@ -61,7 +61,7 @@ class RegisterController extends AbstractController
                     return $this->redirectToRoute('app_course_index', [], Response::HTTP_SEE_OTHER);
                 }
 
-                if (isset($responseBilling['code']) && $responseBilling['code'] === 400) {
+                if ($responseBilling['message'] === 'User with this email already exists') {
                     $error = $responseBilling['message'];
                 }
             } catch (BillingUnavailableException $e) {

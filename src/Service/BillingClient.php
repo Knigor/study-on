@@ -3,13 +3,12 @@
 namespace App\Service;
 
 use App\Exception\BillingUnavailableException;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+
 
 class BillingClient
 {
     public function __construct(
         private readonly string $billingUrl,
-        private NormalizerInterface $normalizer,
     ) {
     }
 

@@ -33,9 +33,6 @@ abstract class AbstractTest extends WebTestCase
             static::$container = static::$client->getContainer(); // Инициализация контейнера
         }
 
-        // core is loaded (for tests without calling of getClient(true))
-        static::$client->getKernel()->boot();
-
         return static::$client;
     }
 
@@ -51,7 +48,7 @@ abstract class AbstractTest extends WebTestCase
 
     protected function setUp(): void
     {
-        static::getClient(); // Инициализация клиента
+      //  static::getClient(); // Инициализация клиента
         $this->loadFixtures($this->getFixtures()); // Загрузка фикстур
     }
 
@@ -97,20 +94,6 @@ abstract class AbstractTest extends WebTestCase
         $executor = new ORMExecutor($em, $purger); // Выполнение фикстур
         $executor->execute($loader->getFixtures());
     }
-
-    protected function replaceServiceBillingClient($ex = false): ?AbstractBrowser
-    {
-        $client = static::getClient();
-        $client->disableReboot();
-
-        static::getContainer()->set(
-            BillingClient::class,
-            new BillingClientMock('', ex: $ex),
-        );
-
-        return $client;
-    }
-
 
 
     public function assertResponseOk(?Response $response = null, ?string $message = null, string $type = 'text/html')
