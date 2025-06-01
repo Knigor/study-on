@@ -8,7 +8,7 @@ use App\Service\BillingClient;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 
-class AuthControllerTest extends WebTestCase
+class SecurityControllerTest extends WebTestCase
 {
 
     public function testLoginSuccessful(): void
@@ -51,7 +51,7 @@ class AuthControllerTest extends WebTestCase
 
         self::assertSelectorExists('li', 'user@mail.ru');
 
-        //  echo $client->getResponse()->getContent();
+
     }
 
     public function testLoginFailedEmail(): void
@@ -81,7 +81,7 @@ class AuthControllerTest extends WebTestCase
         $client->submit($loginForm);
 
 
-        echo $client->getResponse()->getContent();
+
 
         // проверяем корректный вывод сообщения об ошибке
         $client->followRedirect();
@@ -155,7 +155,7 @@ class AuthControllerTest extends WebTestCase
         $profileLink = $crawler->selectLink('Профиль')->link();
         $crawler = $client->click($profileLink);
 
-        echo $client->getResponse()->getContent();
+
 
     }
 
@@ -214,4 +214,113 @@ class AuthControllerTest extends WebTestCase
         );
     }
 
+
+    // тесты для профиля
+
+    public function testProfileLogin(): void
+    {
+        $client = static::createClient();
+        $client->disableReboot();
+        $client->getContainer()->set(
+            BillingClient::class,
+            new BillingClientMock('http://billingURL')
+        );
+
+        // Переход на страницу курсов
+        $crawler = $client->request('GET', '/courses');
+        self::assertResponseIsSuccessful();
+
+        // Переход на страницу логина
+        $authFormLink = $crawler->selectLink('Войти')->link();
+        $crawler = $client->click($authFormLink);
+        $this->assertEquals('/login', $client->getRequest()->getPathInfo());
+
+        // Отправка формы логина
+        $submitBtn = $crawler->selectButton('Войти');
+        $loginForm = $submitBtn->form([
+            'email' => 'user@mail.ru',
+            'password' => '123456',
+        ]);
+        $client->submit($loginForm);
+
+        // Переход после редиректа
+        $crawler = $client->followRedirect();
+        self::assertResponseIsSuccessful();
+
+        // Теперь повторно ищем ссылку на "Профиль" уже в авторизованной версии страницы
+        $profileLink = $crawler->selectLink('Профиль')->link();
+        $crawler = $client->click($profileLink);
+
+        // Проверяем, что перешли на /profile
+        $this->assertEquals('/profile', $client->getRequest()->getPathInfo());
+        self::assertResponseIsSuccessful();
+
+        self::assertSelectorTextContains('.username', 'user@mail.ru');
+        self::assertSelectorTextContains('.balance', 'Баланс: 500.1');
+        self::assertSelectorTextContains('.role', 'ROLE_USER');
+
+    }
+
+
+    public function testProfileLogout(): void
+    {
+        $client = static::createClient();
+        $client->disableReboot();
+        $client->getContainer()->set(
+            BillingClient::class,
+            new BillingClientMock('http://billingURL')
+        );
+
+        // Переход на страницу курсов
+        $crawler = $client->request('GET', '/courses');
+        self::assertResponseIsSuccessful();
+
+        // Переход на страницу логина
+        $authFormLink = $crawler->selectLink('Войти')->link();
+        $crawler = $client->click($authFormLink);
+        $this->assertEquals('/login', $client->getRequest()->getPathInfo());
+
+        // Отправка формы логина
+        $submitBtn = $crawler->selectButton('Войти');
+        $loginForm = $submitBtn->form([
+            'email' => 'user@mail.ru',
+            'password' => '123456',
+        ]);
+        $client->submit($loginForm);
+
+        $crawler = $client->followRedirect();
+        self::assertResponseIsSuccessful();
+
+        // Находим и нажимаем кнопку "Выйти"
+        $logoutLink = $crawler->selectLink('Выйти')->link();
+        $client->click($logoutLink);
+        $this->assertEquals('/logout', $client->getRequest()->getPathInfo());
+        $crawler = $client->followRedirect();
+        $this->assertEquals('/', $client->getRequest()->getPathInfo());
+        $crawler = $client->followRedirect();
+
+
+
+        // проверяем на кнопки войти и регистрации
+
+        self::assertEquals('/courses', $client->getRequest()->getPathInfo());
+        self::assertEquals(1, $crawler->selectLink('Войти')->count());
+        self::assertEquals(1, $crawler->selectLink('Регистрация')->count());
+    }
+
+    public function testRedirectWithoutLogin(): void
+    {
+        $client = static::createClient();
+        $client->disableReboot();
+        $client->getContainer()->set(
+            BillingClient::class,
+            new BillingClientMock('http://billingURL')
+        );
+        $crawler = $client->request('GET', '/profile');
+        self::assertResponseStatusCodeSame(302);
+        $crawler = $client->followRedirect();
+        $this->assertEquals('/login', $client->getRequest()->getPathInfo());
+
+
+    }
 }

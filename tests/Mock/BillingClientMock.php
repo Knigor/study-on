@@ -13,7 +13,7 @@ class BillingClientMock extends BillingClient
         'email' => 'user@mail.ru',
         'password' => '123456',
         'roles' => ['ROLE_USER'],
-        'balance' => 1259.99,
+        'balance' => 500.10,
     ];
     private $admin = [
         'email' => 'admin@mail.ru',

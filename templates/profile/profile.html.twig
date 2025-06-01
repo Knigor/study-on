@@ -1,20 +1,18 @@
-{% extends 'base.html.twig' %}
-
 {% block title %}Профиль пользователя{% endblock %}
 
 {% block body %}
     <h1>Профиль</h1>
     <div class="card">
         <ul class="list-group list-group-flush">
-            <li class="list-group-item"><strong>Почта:</strong> {{ user.username }}</li>
-            <li class="list-group-item"><strong>Роли:</strong>
+            <li class="list-group-item username"><strong>Почта:</strong> {{ user.username }}</li>
+            <li class="list-group-item roles"><strong>Роли:</strong>
                 <ul>
                     {% for role in user.roles %}
-                        <li>{{ role }}</li>
+                        <li class="role">{{ role }}</li>
                     {% endfor %}
                 </ul>
             </li>
-            <li class="list-group-item"><strong>Баланс:</strong> {{ user.balance }}</li>
+            <li class="list-group-item balance"><strong>Баланс:</strong> {{ user.balance }}</li>
         </ul>
     </div>
 {% endblock %}
