@@ -18,6 +18,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     private $apiToken;
 
+    private $balance;
+
 
     public function getApiToken(): ?string
     {
@@ -52,6 +54,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): static
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getBalance(): ?string
+    {
+        return $this->balance;
+    }
+
+    public function setBalance(string $balance): static
+    {
+        $this->balance = $balance;
 
         return $this;
     }
@@ -104,4 +118,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
     }
+
+    public function fromApiToken(): static
+    {
+        $parts = explode('.', $this->apiToken);
+
+        $payload = json_decode(
+            base64_decode($parts[1]),
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
+
+        $this->setEmail($payload['username']);
+        if (is_array($payload['roles'])) {
+            $this->setRoles($payload['roles']);
+        } else {
+            $this->setRoles(json_decode($payload['roles'], true));
+        }
+
+        return $this;
+    }
+
 }
