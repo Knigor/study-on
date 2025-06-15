@@ -2,6 +2,43 @@
 
 {% block title %}{{ course.name }}{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Стили для кастомного модального окна */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .custom-modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .custom-modal-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .custom-modal-close:hover {
+            color: black;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <div class="container mt-5">
         <h1 class="text-center mb-4">{{ course.name }}</h1>
@@ -12,8 +49,84 @@
                 <th>Описание</th>
                 <td>{{ course.description }}</td>
             </tr>
+            <tr>
+                <th>Тип курса</th>
+                <td>
+                    {% if course_type == 'rent' %}
+                        Аренда
+                    {% elseif course_type == 'buy' %}
+                        Покупка
+                    {% else %}
+                        Бесплатный
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Стоимость</th>
+                <td>
+                    {% if course_type == 'free' %}
+                        Бесплатно
+                    {% else %}
+                        {{ course_price|number_format(2, '.', ' ') }} ₽
+                    {% endif %}
+                </td>
+            </tr>
             </tbody>
         </table>
+
+        {% if is_granted('ROLE_USER') %}
+            {% if not is_course_available %}
+                <div class="mt-4">
+                    {% if course_type == 'rent' %}
+                        <button class="btn btn-primary {% if not is_enough_balance %}disabled{% endif %}"
+                                id="openPaymentModal"
+                                {% if not is_enough_balance %}title="Недостаточно средств на балансе"{% endif %}>
+                            Арендовать за {{ course_price|number_format(2, '.', ' ') }} ₽
+                        </button>
+                    {% elseif course_type == 'buy' %}
+                        <button class="btn btn-primary {% if not is_enough_balance %}disabled{% endif %}"
+                                id="openPaymentModal"
+                                {% if not is_enough_balance %}title="Недостаточно средств на балансе"{% endif %}>
+                            Купить за {{ course_price|number_format(2, '.', ' ') }} ₽
+                        </button>
+                    {% endif %}
+                </div>
+
+                <!-- Кастомное модальное окно -->
+                <div id="paymentModal" class="custom-modal">
+                    <div class="custom-modal-content">
+                        <span class="custom-modal-close">&times;</span>
+                        <h3>
+                            {% if course_type == 'rent' %}Аренда курса{% else %}Покупка курса{% endif %}
+                        </h3>
+                        <p>Вы уверены, что хотите {% if course_type == 'rent' %}арендовать{% else %}купить{% endif %}
+                            курс "{{ course.name }}" за {{ course_price|number_format(2, '.', ' ') }} ₽?</p>
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button id="cancelPayment" class="btn btn-secondary">Отмена</button>
+                            <form action="{{ path('app_course_pay', {'id': course.id}) }}" method="post">
+                                <button type="submit" class="btn btn-primary">
+                                    {% if course_type == 'rent' %}Арендовать{% else %}Купить{% endif %}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-info mt-4">
+                    {% if course_type == 'rent' %}
+                        Курс арендован до {{ expires_at }}
+                    {% else %}
+                        Курс куплен
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="mt-4">
+                <a href="{{ path('app_login') }}" class="btn btn-primary">
+                    Войдите, чтобы {% if course_type == 'rent' %}арендовать{% else %}купить{% endif %} курс
+                </a>
+            </div>
+        {% endif %}
 
         <h3>Уроки</h3>
         <ul class="list-group mb-4">
@@ -22,16 +135,53 @@
                     <a href="{{ path('app_lesson_show', {'id': lesson.id}) }}" class="text-decoration-none lesson-item">{{ lesson.nameLesson }}</a>
                 </li>
             {% else %}
-                <li class="list-group-item">No lessons available</li>
+                <li class="list-group-item">Нет доступных уроков</li>
             {% endfor %}
         </ul>
 
         <div class="d-flex justify-content-center gap-3">
             <a href="{{ path('app_course_index') }}" class="btn btn-secondary">Вернуться к курсам</a>
             {% if is_granted('ROLE_ADMIN') %}
-            <a href="{{ path('app_course_edit', {'id': course.id}) }}" class="btn btn-warning">Редактировать курс</a>
-            <a href="{{ path('app_lesson_new', {'course': course.id}) }}" class="btn btn-success">Добавить урок</a>
+                <a href="{{ path('app_course_edit', {'id': course.id}) }}" class="btn btn-warning">Редактировать курс</a>
+                <a href="{{ path('app_lesson_new', {'course': course.id}) }}" class="btn btn-success">Добавить урок</a>
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Работа кастомного модального окна
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById("paymentModal");
+            const btn = document.getElementById("openPaymentModal");
+            const span = document.getElementsByClassName("custom-modal-close")[0];
+            const cancelBtn = document.getElementById("cancelPayment");
+
+            if (btn) {
+                btn.onclick = function() {
+                    modal.style.display = "block";
+                }
+            }
+
+            if (span) {
+                span.onclick = function() {
+                    modal.style.display = "none";
+                }
+            }
+
+            if (cancelBtn) {
+                cancelBtn.onclick = function() {
+                    modal.style.display = "none";
+                }
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        });
+    </script>
 {% endblock %}
