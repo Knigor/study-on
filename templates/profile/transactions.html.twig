@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}История транзакций{% endblock %}
+
+{% block body %}
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>История транзакций</h1>
+            <a href="{{ path('app_profile') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Назад к профилю
+            </a>
+        </div>
+
+        {% if service_unavailable is defined and service_unavailable %}
+            <div class="alert alert-danger d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span>Сервис временно недоступен</span>
+            </div>
+        {% else %}
+            {% if transactions|length > 0 %}
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Дата</th>
+                                <th>Тип</th>
+                                <th class="text-end">Сумма</th>
+                                <th>Детали</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for transaction in transactions %}
+                                <tr>
+                                    <td>{{ transaction.created_at|date('d.m.Y H:i') }}</td>
+                                    <td>
+                                            <span class="badge bg-{{
+                                            transaction.type == 'payment' ? 'info' : 'success'
+                                            }}">
+                                                {{
+                                                transaction.type == 'payment' ?
+                                                'Покупка курса' : 'Пополнение'
+                                                }}
+                                            </span>
+                                    </td>
+                                    <td class="text-end {{
+                                    transaction.type == 'payment' ?
+                                    'text-secondary' : 'text-secondary'
+                                    }}">
+                                        {{ transaction.amount }} ₽
+                                    </td>
+                                    <td>
+                                        {% if transaction.type == 'payment' and transaction.course_code is defined %}
+                                            {% if transaction.course_title is defined %}
+                                                <a href="{{ path('app_course_show', {id: transaction.course_id}) }}">
+                                                    {{ transaction.course_title }}
+                                                </a>
+                                            {% else %}
+                                                Курс: {{ transaction.course_code }}
+                                            {% endif %}
+                                        {% else %}
+                                            {{ transaction.description ?? '-' }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    У вас пока нет транзакций
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}

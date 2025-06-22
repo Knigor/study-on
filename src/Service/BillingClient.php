@@ -8,6 +8,7 @@ use App\Exception\InvalidCredentialsException;
 use App\Exception\NotEnoughBalanceException;
 use App\Security\User;
 use DateTime;
+use Exception;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 
@@ -329,6 +330,41 @@ class BillingClient
         }
 
         return $latest;
+    }
+
+
+    public function getUserTransactions(string $token): array
+    {
+        if ($token == null) {
+            throw new Exception("Missing token");
+        }
+
+        $response = $this->request(
+            $this->billingUrl . '/api/v1/transactions',
+            [],
+            [
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $token,
+            ],
+            'GET'
+        );
+
+        if ($response['statusCode'] == 500) {
+            throw new BillingUnavailableException('Service is temporarily unavailable. Try again later.');
+        }
+
+        $transactionsData = json_decode($response['data'], true);
+
+        if (!$transactionsData) {
+            throw new BillingUnavailableException('Service is temporarily unavailable. Try again later.');
+        }
+
+        // Сортировка
+        usort($transactionsData, function ($a, $b) {
+            return strtotime($b['created_at']) <=> strtotime($a['created_at']);
+        });
+
+        return $transactionsData;
     }
 
 

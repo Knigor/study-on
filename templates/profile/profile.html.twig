@@ -1,18 +1,56 @@
+{% extends 'base.html.twig' %}
+
 {% block title %}Профиль пользователя{% endblock %}
 
 {% block body %}
-    <h1>Профиль</h1>
-    <div class="card">
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item username"><strong>Почта:</strong> {{ user.username }}</li>
-            <li class="list-group-item roles"><strong>Роли:</strong>
-                <ul>
-                    {% for role in user.roles %}
-                        <li class="role">{{ role }}</li>
-                    {% endfor %}
-                </ul>
-            </li>
-            <li class="list-group-item balance"><strong>Баланс:</strong> {{ user.balance }}</li>
-        </ul>
+    <div class="container py-4">
+        <h1 class="mb-4">Профиль</h1>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Личные данные</h2>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span><strong>Почта:</strong></span>
+                    <span>{{ user.email }}</span>
+                </li>
+                <li class="list-group-item">
+                    <strong>Роли:</strong>
+                    <ul class="mb-0 mt-2">
+                        {% for role in user.roles %}
+                            <li>
+                                <span class="badge bg-{{
+                                role == 'ROLE_SUPER_ADMIN' ? 'danger' :
+                                role == 'ROLE_ADMIN' ? 'warning' : 'primary'
+                                }}">
+                                    {{
+                                    role == 'ROLE_SUPER_ADMIN' ? 'Супер админ' :
+                                    role == 'ROLE_ADMIN' ? 'Администратор' : 'Пользователь'
+                                    }}
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span><strong>Баланс:</strong></span>
+                    <span>{{ user.balance }} ₽</span>
+                </li>
+            </ul>
+            <div class="card-footer text-end">
+                <a href="{{ path('app_transactions_list') }}"
+                   class="btn btn-primary">
+                    <i class="bi bi-clock-history me-2"></i>История транзакций
+                </a>
+            </div>
+        </div>
+
+        {% if service_unavailable is defined and service_unavailable %}
+            <div class="alert alert-danger d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span>Сервис временно недоступен</span>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}
